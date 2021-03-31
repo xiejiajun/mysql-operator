@@ -68,6 +68,7 @@ func NewPodSyncer(c client.Client, scheme *runtime.Scheme, cluster *mysqlcluster
 }
 
 // nolint: gocyclo
+// TODO 用于在StatefulSet控制器创建的Pod上面创建MysqlCluster资源相关的Label
 func (s *podSyncer) SyncFn(out *core.Pod) error {
 	// raise error if pod is not created
 	if out.CreationTimestamp.IsZero() {

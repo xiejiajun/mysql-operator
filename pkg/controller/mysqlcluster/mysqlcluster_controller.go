@@ -253,12 +253,14 @@ func (r *ReconcileMysqlCluster) Reconcile(ctx context.Context, request reconcile
 
 	// run the syncers
 	for _, sync := range syncers {
+		// TODO 最终sync.Sync(ctx) -> ObjectSyncer.sync -> controllerutil.CreateOrUpdate：创建或者更新资源
 		if err = syncer.Sync(context.TODO(), sync, r.recorder); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
 
 	// run the pod syncers
+	// TODO 为StatefulSet控制器创建出来的Pod补充自定义Label(这些Pod一定存在，所以这里会是Update)
 	log.V(1).Info("cluster status", "status", cluster.Status)
 	for _, sync := range r.getPodSyncers(cluster) {
 		if err = syncer.Sync(context.TODO(), sync, r.recorder); err != nil {
@@ -270,6 +272,7 @@ func (r *ReconcileMysqlCluster) Reconcile(ctx context.Context, request reconcile
 	}
 
 	// Perform any cleanup
+	// TODO 清除多出来的PVC
 	pvcCleaner := cleaner.NewPVCCleaner(cluster, r.opt, r.recorder, r.Client)
 	err = pvcCleaner.Run(context.TODO())
 	if err != nil {

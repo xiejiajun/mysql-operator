@@ -90,6 +90,7 @@ func NewStatefulSetSyncer(c client.Client, scheme *runtime.Scheme, cluster *mysq
 	})
 }
 
+// TODO 构建StatefulSet资源配置清单
 func (s *sfsSyncer) SyncFn(in runtime.Object) error {
 	out := in.(*apps.StatefulSet)
 
