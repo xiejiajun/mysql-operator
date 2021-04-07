@@ -166,6 +166,7 @@ func (r *ReconcileMysqlCluster) Reconcile(ctx context.Context, request reconcile
 	up := upgrades.NewUpgrader(r.Client, r.recorder, cluster, r.opt)
 	if up.ShouldUpdate() {
 		log.Info("the upgrader will run for this cluster")
+		// TODO 更新前先删掉所有相关的资源（StatefulSet和老版本的headless service)
 		if err = up.Run(context.TODO()); err != nil {
 			return reconcile.Result{}, err
 		}
