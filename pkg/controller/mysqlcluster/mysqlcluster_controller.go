@@ -80,6 +80,14 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	// TODO 这里监听的是根据MysqlCluster创建的StatefulSet资源，如果StatefulSet资源变化了，那么会根据owner信息找到所属的MysqlCluster资源，
+	//  EnqueueRequestForOwner的第二个参数填了一个OwnerType表示应该将创建StatefulSet的owner对象enqueue，而不是将StatefulSet自身入队列,
+	//  最终enqueue队列的都是MysqlCluster，这属于K8S的设计哲学，会让调度逻辑变得很简单。（Operator sdk才需要自定义这个Watch逻辑，Kubebuilder这些
+	//  逻辑都定义好了，无需我们自己写)
+	// TODO mysqlcluster.NewStatefulSetSyncer的cluster.Unwrap()参数 -> syncer.Sync -> ObjectSyncer.Sync ->
+	//   controllerutil.CreateOrUpdate的参数ObjectSyncer.mutateFn -> controllerutil.SetControllerReference ->
+	//   controllerutil.upsertOwnerRef为StatefulSet对象设置了OwnerReferences属性，所以这里这里监听到StatefulSet资源变化时
+	//   可以将其Owner入队，并且MysqlCluster资源删除时也可以级联删除其关联的StatefulSet。
 	err = c.Watch(&source.Kind{Type: &appsv1.StatefulSet{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &mysqlv1alpha1.MysqlCluster{},
@@ -88,6 +96,9 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	// TODO 这里监听的是根据MysqlCluster创建的Service资源，如果Service资源变化了，那么会根据owner信息找到所属的MysqlCluster资源，
+	//  EnqueueRequestForOwner的第二个参数填了一个OwnerType表示应该将创建Service对象的owner对象enqueue，而不是将Service自身入队列,
+	//  最终enqueue队列的都是MysqlCluster（追踪代码得知，只会关联MasterSVC、HealthySVC和HealthyReplicasSVC三个Service对象)
 	err = c.Watch(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &mysqlv1alpha1.MysqlCluster{},
@@ -96,6 +107,9 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	// TODO 这里监听的是根据MysqlCluster创建的ConfigMap资源，如果ConfigMap资源变化了，那么会根据owner信息找到所属的MysqlCluster资源，
+	//  EnqueueRequestForOwner的第二个参数填了一个OwnerType表示应该将创建ConfigMap对象的owner对象enqueue，而不是将ConfigMap自身入队列,
+	//  最终enqueue队列的都是MysqlCluster
 	err = c.Watch(&source.Kind{Type: &corev1.ConfigMap{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &mysqlv1alpha1.MysqlCluster{},
@@ -104,6 +118,9 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	// TODO 这里监听的是根据MysqlCluster创建的PodDisruptionBudget资源，如果PodDisruptionBudget资源变化了，那么会根据owner信息找到所属的MysqlCluster资源，
+	//  EnqueueRequestForOwner的第二个参数填了一个OwnerType表示应该将创建PodDisruptionBudget对象的owner对象enqueue，而不是将PodDisruptionBudget自身入队列,
+	//  最终enqueue队列的都是MysqlCluster
 	err = c.Watch(&source.Kind{Type: &policyv1beta1.PodDisruptionBudget{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &mysqlv1alpha1.MysqlCluster{},
@@ -112,6 +129,9 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	// TODO 这里监听的是根据MysqlCluster创建的Secret资源，如果Secret资源变化了，那么会根据owner信息找到所属的MysqlCluster资源，
+	//  EnqueueRequestForOwner的第二个参数填了一个OwnerType表示应该将创建Secret对象的owner对象enqueue，而不是将Secret自身入队列,
+	//  最终enqueue队列的都是MysqlCluster（跟踪代码得知，只会关联OperatedSecret对象)
 	err = c.Watch(&source.Kind{Type: &corev1.Secret{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &mysqlv1alpha1.MysqlCluster{},

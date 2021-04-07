@@ -591,6 +591,7 @@ func (s *sfsSyncer) ensureVolumeClaimTemplates(in []core.PersistentVolumeClaim) 
 		// terminated after deleting parent MySQL cluster
 		trueVar := true
 
+		// TODO 设置ownerReferences，保证MysqlCluster资源删除时级联删除该资源
 		data.ObjectMeta.OwnerReferences = []metav1.OwnerReference{
 			{
 				APIVersion: api.SchemeGroupVersion.String(),
