@@ -91,6 +91,7 @@ func (s *deletionJobSyncer) SyncFn(job *batch.Job) error {
 
 	if s.backup.DeletionTimestamp == nil {
 		// don't do anything if the backup is not deleted
+		// TODO DeletionTimestamp为空，表示资源对象并未被ApiServer删除，所以返回
 		return syncer.ErrIgnore
 	}
 
@@ -106,6 +107,7 @@ func (s *deletionJobSyncer) SyncFn(job *batch.Job) error {
 
 	// check if the job is created and if not create it
 	if job.ObjectMeta.CreationTimestamp.IsZero() {
+		// TODO CreationTimestamp为0, 表示是创建/更新事件
 		job.Labels = map[string]string{
 			"backup":      s.backup.Name,
 			"cleanup-job": "true",
@@ -127,6 +129,7 @@ func (s *deletionJobSyncer) SyncFn(job *batch.Job) error {
 
 	completed, failed := getJobStatus(job)
 	if completed {
+		// TODO 任务完成，清理资源
 		removeFinalizer(s.backup.Unwrap(), RemoteStorageFinalizer)
 	}
 
