@@ -46,6 +46,7 @@ type jobSyncer struct {
 
 // NewJobSyncer returns a syncer for backup jobs
 func NewJobSyncer(c client.Client, s *runtime.Scheme, backup *mysqlbackup.MysqlBackup, cluster *mysqlcluster.MysqlCluster, opt *options.Options) syncer.Interface {
+	// TODO 创建用于备份的Job, K8s的Job资源支持自动生成标签选择器，所以这里没有配置标签选择器
 	obj := &batch.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      backup.GetNameForJob(),
@@ -76,6 +77,7 @@ func (s *jobSyncer) SyncFn() error {
 
 	// check if job is already created an just update the status
 	if !s.job.ObjectMeta.CreationTimestamp.IsZero() {
+		// TODO 如果Job已经创建，则只更新状态
 		s.updateStatus(s.job)
 		return nil
 	}

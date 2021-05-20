@@ -108,6 +108,7 @@ type ReconcileMysqlBackup struct {
 func (r *ReconcileMysqlBackup) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	// Fetch the MysqlBackup instance
 	backup := mysqlbackup.New(&mysqlv1alpha1.MysqlBackup{})
+	// TODO 获取backup资源
 	err := r.Get(context.TODO(), request.NamespacedName, backup.Unwrap())
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -133,14 +134,17 @@ func (r *ReconcileMysqlBackup) Reconcile(ctx context.Context, request reconcile.
 	}
 
 	// get related cluster
+	// TODO 获取关联的MysqlCluster资源
 	var cluster *mysqlcluster.MysqlCluster
 	if cluster, err = r.getRelatedCluster(backup); err != nil {
+		// TODO 关联的mysqlCluster不存在？
 		// if the remote delete policy is delete then run the deletion syncer
 		s := backupSyncer.NewDeleteJobSyncer(r.Client, r.scheme, backup, nil, r.opt, r.recorder)
 		if sErr := syncer.Sync(context.TODO(), s, r.recorder); sErr != nil {
 			return reconcile.Result{}, sErr
 		}
 
+		// TODO 更新backup资源到最新状态
 		if uErr := r.updateBackup(savedBackup, backup); uErr != nil {
 			return reconcile.Result{}, uErr
 		}

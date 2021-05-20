@@ -59,6 +59,7 @@ type deletionJobSyncer struct {
 func NewDeleteJobSyncer(c client.Client, s *runtime.Scheme, backup *mysqlbackup.MysqlBackup,
 	cluster *mysqlcluster.MysqlCluster, opt *options.Options, r record.EventRecorder) syncer.Interface {
 
+	// TODO 创建用于删除mysqlCluster的Job
 	job := &batch.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      backup.GetNameForDeletionJob(),
@@ -87,6 +88,9 @@ func (s *deletionJobSyncer) SyncFn(job *batch.Job) error {
 	}
 
 	// it's hard delete policy then set finalizer on backup
+	// TODO 设置Finalizer标志位，在删除backup资源前先删除backup管理的资源 -> 清除标志位 -> 删除backup资源
+	//   清空标志位后由k8s GC机制自动删除backup资源
+	//   详见https://blog.csdn.net/sixinchao_1/article/details/108833081
 	addFinalizer(s.backup.Unwrap(), RemoteStorageFinalizer)
 
 	if s.backup.DeletionTimestamp == nil {
@@ -97,6 +101,7 @@ func (s *deletionJobSyncer) SyncFn(job *batch.Job) error {
 
 	// if the backup is failed then don't create the deletion job and remove the finalizer
 	if cond := s.backup.GetBackupCondition(api.BackupFailed); cond != nil && cond.Status == core.ConditionTrue {
+		// TODO 如果backup资源创建失败则移除Finalizer标志位，保证能正常删除对应的backup资源
 		removeFinalizer(s.backup.Unwrap(), RemoteStorageFinalizer)
 		return syncer.ErrIgnore
 	}
@@ -107,7 +112,7 @@ func (s *deletionJobSyncer) SyncFn(job *batch.Job) error {
 
 	// check if the job is created and if not create it
 	if job.ObjectMeta.CreationTimestamp.IsZero() {
-		// TODO CreationTimestamp为0, 表示是创建/更新事件
+		// TODO CreationTimestamp为0, 表示是创建事件(也就是资源还未创建)
 		job.Labels = map[string]string{
 			"backup":      s.backup.Name,
 			"cleanup-job": "true",
@@ -121,6 +126,8 @@ func (s *deletionJobSyncer) SyncFn(job *batch.Job) error {
 
 		// explicit set owner reference on job because  the owner has set deletionTimestamp, at this point, and
 		// the syncer will not set it
+		// TODO 设置OwnerReference，用于在清理backup时自动清理设置了Owner引用关系的子资源
+		//  这里是为了删除backup时自动删除对应的Job资源
 		err = controllerutil.SetControllerReference(s.backup.Unwrap(), job, s.schema)
 		if err != nil {
 			return err
