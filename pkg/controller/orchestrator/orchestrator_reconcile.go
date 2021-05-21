@@ -56,6 +56,7 @@ type orcUpdater struct {
 	log logr.Logger
 }
 
+// TODO 借助orchestrator实现MySQL主从管理
 // NewOrcUpdater returns a syncer that updates cluster status from orchestrator.
 func NewOrcUpdater(cluster *mysqlcluster.MysqlCluster, r record.EventRecorder, orcClient orc.Interface) syncer.Interface {
 	return &orcUpdater{

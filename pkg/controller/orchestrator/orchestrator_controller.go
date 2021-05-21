@@ -99,8 +99,10 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	// TODO 跟mysqlcluster_controller一起监听MysqlCluster资源
 	// Watch for changes to MysqlCluster. just for add and delete events
 	err = c.Watch(&source.Kind{Type: &mysqlv1alpha1.MysqlCluster{}}, &handler.Funcs{
+		// TODO 处理到MysqlCluster创建事件
 		CreateFunc: func(evt event.CreateEvent, q workqueue.RateLimitingInterface) {
 			if evt.Object == nil {
 				log.Error(nil, "CreateEvent received with no metadata", "CreateEvent", evt)
@@ -112,6 +114,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 				Object: evt.Object,
 			})
 		},
+		// TODO 处理到MysqlCluster删除事件
 		DeleteFunc: func(evt event.DeleteEvent, q workqueue.RateLimitingInterface) {
 			if evt.Object == nil {
 				log.Error(nil, "DeleteEvent received with no metadata", "DeleteEvent", evt)
@@ -131,6 +134,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	chSource := source.Channel{Source: events}
 
 	// watch for events on channel `events`
+	// TODO 监听event通道的资源
 	if err = c.Watch(&chSource, &handler.EnqueueRequestForObject{}); err != nil {
 		return err
 	}
@@ -145,6 +149,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 			case <-time.After(reconcileTimePeriod):
 				// write all clusters to events chan to be processed
 				clusters.Range(func(key, value interface{}) bool {
+					// TODO 将监听到的mysqlCluster资源写到Event通道，最终通过Reconcile方法处理
 					events <- value.(event.GenericEvent)
 					log.V(1).Info("Schedule new cluster for reconciliation", "key", key)
 
@@ -199,6 +204,7 @@ func (r *ReconcileMysqlCluster) Reconcile(ctx context.Context, request reconcile
 	oldStatus := *cluster.Status.DeepCopy()
 	log.V(1).Info("reconciling cluster")
 
+	// TODO 更新cluster对象
 	// this syncer mutates the cluster and updates it. Should be the first syncer
 	finSyncer := newFinalizerSyncer(r.Client, cluster, r.orcClient)
 	if err := syncer.Sync(context.TODO(), finSyncer, r.recorder); err != nil {
@@ -211,7 +217,7 @@ func (r *ReconcileMysqlCluster) Reconcile(ctx context.Context, request reconcile
 	r.scheme.Default(cluster.Unwrap())
 
 	// TODO no sync should be triggered if no replica is available
-
+	// TODO 根据mysqlCluster副本数决定是单Master / 1 Master + 1 Slave / 1 Master + 2 Slave架构
 	orcSyncer := NewOrcUpdater(cluster, r.recorder, r.orcClient)
 	if err := syncer.Sync(context.TODO(), orcSyncer, r.recorder); err != nil {
 		return reconcile.Result{}, err
