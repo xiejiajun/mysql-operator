@@ -260,11 +260,16 @@ func (r *ReconcileMysqlCluster) Reconcile(ctx context.Context, request reconcile
 	// run the syncers for services, pdb and statefulset
 	syncers := []syncer.Interface{
 		clustersyncer.NewSecretSyncer(r.Client, r.scheme, cluster, r.opt),
+		// TODO 创建给sts用的headless service
 		clustersyncer.NewHeadlessSVCSyncer(r.Client, r.scheme, cluster),
+		// TODO 用于创建Master节点的ClusterIP类型的service，用于K8s集群内部访问
 		clustersyncer.NewMasterSVCSyncer(r.Client, r.scheme, cluster),
+		// TODO 用于创建健康检测节点的ClusterIP类型的service，用于K8s集群内部访问
 		clustersyncer.NewHealthySVCSyncer(r.Client, r.scheme, cluster),
+		// TODO 用于创建健康副本节点的ClusterIP类型的service，用于K8s集群内部访问
 		clustersyncer.NewHealthyReplicasSVCSyncer(r.Client, r.scheme, cluster),
 
+		// TODO 用于创建sts
 		clustersyncer.NewStatefulSetSyncer(r.Client, r.scheme, cluster, cmRev, sctRev, r.opt),
 	}
 
