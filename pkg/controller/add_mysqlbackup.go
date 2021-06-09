@@ -22,5 +22,6 @@ import (
 
 func init() {
 	// AddToManagerFuncs is a list of functions to create controllers and add them to a manager.
+	// TODO 注册MysqlBackup控制器
 	AddToManagerFuncs = append(AddToManagerFuncs, mysqlbackup.Add)
 }

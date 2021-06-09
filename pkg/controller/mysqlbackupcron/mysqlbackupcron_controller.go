@@ -138,6 +138,7 @@ func (r *ReconcileMysqlBackup) Reconcile(ctx context.Context, request reconcile.
 
 	log.V(1).Info("register cluster in cronjob", "key", cluster, "schedule", schedule)
 
+	// TODO 用于定时生成MysqlBackup对象
 	return reconcile.Result{}, r.updateClusterSchedule(cluster, schedule)
 }
 
@@ -181,6 +182,7 @@ func (r *ReconcileMysqlBackup) updateClusterSchedule(cluster *mysqlv1alpha1.Mysq
 		}
 	}
 
+	// TODO 创建用于生成mysqlbackup的定时任务
 	r.cron.Schedule(schedule, &job{
 		ClusterName:                    cluster.Name,
 		Namespace:                      cluster.Namespace,

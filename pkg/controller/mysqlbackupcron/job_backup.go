@@ -51,16 +51,19 @@ func (j *job) Run() {
 
 	// run garbage collector if needed
 	if j.BackupScheduleJobsHistoryLimit != nil {
+		// TODO 如果配置了BackupScheduleJobsHistoryLimit，则进行GC，没配置就无限保留
 		defer j.backupGC()
 	}
 
 	// check if a backup is running
 	if j.scheduledBackupsRunningCount() > 0 {
+		// TODO 最多只允许一个backup job同时处于运行状态
 		log.Info("at least a backup is running", "running_backups_count", j.scheduledBackupsRunningCount())
 		return
 	}
 
 	// create the backup
+	// TODO 创建MysqlBackup资源
 	if _, err := j.createBackup(); err != nil {
 		log.Error(err, "failed to create backup")
 	}
