@@ -92,6 +92,8 @@ func main() {
 	}
 
 	// Setup all Controllers
+	// TODO 包括用于定时生成MysqlBackups对象的mysqlbackupcron控制器、mysqlbackup控制器、
+	//  mysqlcluster控制器、mysqluser、mysqldatabase、nodecontroller以及负责主从切换的orchestrator控制器等
 	if err := controller.AddToManager(mgr); err != nil {
 		log.Error(err, "unable to setup controllers")
 		os.Exit(1)
