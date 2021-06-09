@@ -59,7 +59,7 @@ type deletionJobSyncer struct {
 func NewDeleteJobSyncer(c client.Client, s *runtime.Scheme, backup *mysqlbackup.MysqlBackup,
 	cluster *mysqlcluster.MysqlCluster, opt *options.Options, r record.EventRecorder) syncer.Interface {
 
-	// TODO 创建用于删除mysqlCluster的Job
+	// TODO 创建用于删除mysqlBackup记录的Job
 	job := &batch.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      backup.GetNameForDeletionJob(),
