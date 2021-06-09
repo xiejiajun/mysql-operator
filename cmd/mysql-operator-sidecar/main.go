@@ -74,10 +74,12 @@ func main() {
 	}
 	cmd.AddCommand(cloneCmd)
 
+	// TODO 用于启动sidecar的命令
 	sidecarCmd := &cobra.Command{
 		Use:   "run",
 		Short: "Configs mysql users, replication, and serve backups.",
 		Run: func(cmd *cobra.Command, args []string) {
+			// TODO sidecar提供配置mysql用户、副本以及触发备份的http接口
 			err := sidecar.RunSidecarCommand(cfg, stop)
 			if err != nil {
 				log.Error(err, "run command failed")
@@ -87,6 +89,7 @@ func main() {
 	}
 	cmd.AddCommand(sidecarCmd)
 
+	// TODO 用于触发数据备份的命令
 	takeBackupCmd := &cobra.Command{
 		Use:   "take-backup-to",
 		Short: "Take a backup from node and push it to rclone path.",
@@ -97,6 +100,7 @@ func main() {
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
+			// TODO 调用备份接口触发备份
 			err := sidecar.RunTakeBackupCommand(cfg, args[0], args[1])
 			if err != nil {
 				log.Error(err, "take backup command failed")

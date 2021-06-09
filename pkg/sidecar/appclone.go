@@ -197,6 +197,7 @@ func cloneFromBucket(cfg *Config) error {
 func cloneFromSource(cfg *Config, host string) error {
 	log.Info("cloning from node", "host", host)
 
+	// TODO 从备份数据恢复
 	response, err := requestABackup(cfg, host, serverBackupEndpoint)
 	if err != nil {
 		return fmt.Errorf("fail to get backup: %s", err)
