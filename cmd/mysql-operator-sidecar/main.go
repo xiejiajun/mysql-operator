@@ -29,6 +29,8 @@ import (
 
 var log = logf.Log.WithName("sidecar")
 
+// TODO 这个main函数用于启动提供备份服务的sidecar(基于xbackup) 或者 调用提供备份的sidecar的接口触发备份，
+//  也就是备份服务的server和cli入口都在这
 func main() {
 	stop := make(chan struct{})
 
@@ -74,7 +76,7 @@ func main() {
 	}
 	cmd.AddCommand(cloneCmd)
 
-	// TODO 用于启动sidecar的命令
+	// TODO 用于启动sidecar的命令(参数是run时启动提供备份服务的sidecar)
 	sidecarCmd := &cobra.Command{
 		Use:   "run",
 		Short: "Configs mysql users, replication, and serve backups.",
@@ -89,7 +91,7 @@ func main() {
 	}
 	cmd.AddCommand(sidecarCmd)
 
-	// TODO 用于触发数据备份的命令
+	// TODO 用于触发数据备份的命令（参数是take-backup-to是通过cli调用sidecar里面的备份接口)
 	takeBackupCmd := &cobra.Command{
 		Use:   "take-backup-to",
 		Short: "Take a backup from node and push it to rclone path.",
