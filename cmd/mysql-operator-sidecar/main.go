@@ -58,8 +58,10 @@ func main() {
 	logf.SetLogger(zapr.NewLogger(logf.RawStackdriverZapLoggerTo(os.Stderr, true)))
 
 	// init configs
+	// TODO 初始化配置，检查数据目录下有无数据等
 	cfg := sidecar.NewConfig()
 
+	// TODO 当参数是clone-and-init, 从指定备份数据初始化一个MySQL实例(只有对应的PVC不存在才会生效)
 	cloneCmd := &cobra.Command{
 		Use:   "clone-and-init",
 		Short: "Clone data from a bucket or prior node.",
